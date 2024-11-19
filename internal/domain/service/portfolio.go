@@ -30,11 +30,8 @@ func (s *PortfolioService) CreatePortfolio(ctx context.Context, userID uuid.UUID
 	}
 
 	err := s.portfolioRepo.Create(ctx, myPortfolio)
-	if err != nil {
-		return nil, err
-	}
 
-	return myPortfolio, nil
+	return myPortfolio, err
 }
 
 func (s *PortfolioService) AddWalletToPortfolio(ctx context.Context, portfolioID uuid.UUID, wallet *entity.Wallet) error {

@@ -30,13 +30,9 @@ func (r *PortfolioRepository) Delete(ctx context.Context, id string) error {
 func (r *PortfolioRepository) GetByID(ctx context.Context, id string) (*entity.Portfolio, error) {
 	var portfolio entity.Portfolio
 	err := r.db.WithContext(ctx).Where("id = ?", id).First(&portfolio).Error
-	if err != nil {
-		return nil, err
-	}
-	return &portfolio, nil
+	return &portfolio, err
 }
 
 func (r *PortfolioRepository) GetByUserID(ctx context.Context, userID string) (*entity.Portfolio, error) {
-	// TODO: implement get by user id
 	return nil, nil
 }
