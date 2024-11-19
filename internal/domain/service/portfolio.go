@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/punchanabu/portfolio-tracker/internal/domain/entity"
@@ -21,9 +23,39 @@ func NewPortfolioService(portfolioRepo repository.PortfolioRepository, walletRep
 }
 
 func (s *PortfolioService) CreatePortfolio(ctx context.Context, userID uuid.UUID, name string) (*entity.Portfolio, error) {
-	return nil, nil
+	myPortfolio := &entity.Portfolio{
+		ID:     uuid.New(),
+		UserID: userID,
+		Name:   name,
+	}
+
+	err := s.portfolioRepo.Create(ctx, myPortfolio)
+	if err != nil {
+		return nil, err
+	}
+
+	return myPortfolio, nil
 }
 
-func (s *PortfolioService) AddWalletToPortfolio(ctx context.Context, portfolioID uuid.UUID, walletID uuid.UUID) error {
-	return nil
+func (s *PortfolioService) AddWalletToPortfolio(ctx context.Context, portfolioID uuid.UUID, wallet *entity.Wallet) error {
+	portfolio, err := s.portfolioRepo.GetByID(ctx, portfolioID)
+	if err != nil {
+		return err
+	}
+
+	existingWallets, err := s.walletRepo.GetByAddress(ctx, wallet.Address)
+	if existingWallets != nil {
+		return errors.New("wallet already exists")
+	}
+
+	wallet.ID = uuid.New()
+	wallet.CreatedAt = time.Now()
+	wallet.UpdatedAt = time.Now()
+
+	if err := s.walletRepo.Create(ctx, wallet); err != nil {
+		return err
+	}
+
+	portfolio.Wallets = append(portfolio.Wallets, *wallet)
+	return s.portfolioRepo.Update(ctx, portfolio)
 }

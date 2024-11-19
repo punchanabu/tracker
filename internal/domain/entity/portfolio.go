@@ -1,10 +1,13 @@
 package entity
 
-import "time"
+import (
+	"time"
+	"github.com/google/uuid"
+)
 
 type Portfolio struct {
-	ID        string
-	UserID    string
+	ID        uuid.UUID
+	UserID    uuid.UUID
 	Name      string
 	Wallets   []Wallet
 	CreatedAt time.Time
