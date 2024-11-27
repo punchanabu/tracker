@@ -36,3 +36,13 @@ func (r *PortfolioRepository) GetByID(ctx context.Context, id string) (*entity.P
 func (r *PortfolioRepository) GetByUserID(ctx context.Context, userID string) (*entity.Portfolio, error) {
 	return nil, nil
 }
+
+func (r *PortfolioRepository) AddWalletToPortfolio(ctx context.Context, portfolioID string, wallet entity.Wallet) error {
+	var portfolio entity.Portfolio
+	if err := r.db.WithContext(ctx).Where("id = ?", portfolioID).First(&portfolio).Error; err != nil {
+		return err
+	}
+
+	portfolio.Wallets = append(portfolio.Wallets, wallet)
+	return r.db.WithContext(ctx).Save(&portfolio).Error
+}

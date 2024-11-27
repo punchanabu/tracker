@@ -34,6 +34,14 @@ func (s *PortfolioService) CreatePortfolio(ctx context.Context, userID uuid.UUID
 	return myPortfolio, err
 }
 
+func (s *PortfolioService) GetPortfolioByID(ctx context.Context, portfolioID uuid.UUID) (*entity.Portfolio, error) {
+	return s.portfolioRepo.GetByID(ctx, portfolioID)
+}
+
+func (s *PortfolioService) GetPortfoliosByUserID(ctx context.Context, userID uuid.UUID) (*entity.Portfolio, error) {
+	return s.portfolioRepo.GetByUserID(ctx, userID)
+}
+
 func (s *PortfolioService) AddWalletToPortfolio(ctx context.Context, portfolioID uuid.UUID, wallet *entity.Wallet) error {
 	portfolio, err := s.portfolioRepo.GetByID(ctx, portfolioID)
 	if err != nil {

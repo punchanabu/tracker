@@ -22,7 +22,7 @@ func NewBalanceService(walletRepo repository.WalletRepository, transactionRepo r
 	}
 }
 
-func (s *BalanceService) CalculateWalletBalance(ctx context.Context, wallet entity.Wallet) (vo.Money, error) {
+func (s *BalanceService) CalculateWalletBalance(ctx context.Context, wallet *entity.Wallet) (vo.Money, error) {
 	transactions, err := s.transactionRepo.GetByWalletID(ctx, wallet.ID)
 	if err != nil {
 		return vo.Money{}, err
@@ -31,23 +31,23 @@ func (s *BalanceService) CalculateWalletBalance(ctx context.Context, wallet enti
 	balance := vo.NewMoney(big.NewInt(0), wallet.Balance.Currency)
 
 	for _, tx := range transactions {
-
 		if tx.Status != entity.TransactionStatusSuccess {
 			continue
 		}
+
 		if tx.From == wallet.Address {
-			balance.Sub(tx.Amount)
+			balance = balance.Sub(tx.Amount)
 		}
 
 		if tx.To == wallet.Address {
-			balance.Add(tx.Amount)
+			balance = balance.Add(tx.Amount)
 		}
 	}
 
 	return balance, nil
 }
 
-func (s *BalanceService) UpdateWalletBalance(ctx context.Context, wallet entity.Wallet) error {
+func (s *BalanceService) UpdateWalletBalance(ctx context.Context, wallet *entity.Wallet) error {
 	balance, err := s.CalculateWalletBalance(ctx, wallet)
 	if err != nil {
 		return err
@@ -56,5 +56,5 @@ func (s *BalanceService) UpdateWalletBalance(ctx context.Context, wallet entity.
 	wallet.Balance = balance
 	wallet.UpdatedAt = time.Now()
 
-	return s.walletRepo.Update(ctx, &wallet)
+	return s.walletRepo.Update(ctx, wallet)
 }
